@@ -14,5 +14,6 @@ new Promise(resolve => {
     .then(text => text.split('\n'))
     .then(lines => lines.map((x, i) => `${i + 1}: ${x}`))
     .then(lines => lines.join('\n'))
+    .then(text => new Promise(resolve => setTimeout(() => resolve(text), 1000)))
     .then(console.log);
 

@@ -8,7 +8,7 @@ module.exports = class MyPromise {
     this.chain = [];
 
     const resolve = (value) => {
-      setImmediate(() => {
+      process.nextTick(() => {
         this.state = 'resolved';
         this.value = value;
         this.chain.forEach(fn => fn(this.value));
