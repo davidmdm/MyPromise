@@ -12,31 +12,59 @@ module.exports = class MyPromise {
         this.state = 'resolved';
         this.value = value;
         this.chain.forEach(fn => fn(this.value));
-      })
+      });
     };
 
-    fn(resolve);
+    const reject = (err) => {
+      process.nextTick(() => {
+        this.state = 'rejected';
+        this.error = err;
+        if (this.errorHandler) {
+          this.value = this.errorHandler(this.error);
+        } else {
+          throw this.error;
+        }
+
+        this.chain.forEach(fn => fn(this.value));
+
+      });
+    };
+
+    fn(resolve, reject);
 
   }
 
   then(fn) {
-    
+
     if (this.state === 'pending') {
-      return new MyPromise(resolve => {
+      return new MyPromise((resolve, reject) => {
         this.chain.push(x => {
-          const value = fn(x);
-          if (value instanceof MyPromise) {
-            value.then(resolve);
-          } else {
-            resolve(value);
+          try {
+            const value = fn(x);
+            if (value instanceof MyPromise) {
+              value.then(resolve);
+            } else {
+              resolve(value);
+            }
+          } catch (err) {
+            reject(err);
           }
         });
       });
-    } 
+    }
 
     if (this.state === 'resolved') {
       return new MyPromise(resolve => resolve(fn(this.value)));
     }
+
+    if (this.state === 'rejected') {
+      return new MyPromise(resolve => resolve(fn(this.value)));
+    }
+  }
+
+  catch(fn) {
+    this.errorHandler = fn;
+    return this;
   }
 
 }
