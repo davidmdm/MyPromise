@@ -71,5 +71,13 @@ module.exports = class MyPromise {
     this.errorHandler = fn;
     return this;
   }
+  
+  static resolve(val) {
+    return new Promise(resolve => resolve(val));
+  }
+
+  static reject(val) {
+    return new Promise((_, reject) => reject(val));
+  }
 
 }
