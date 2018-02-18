@@ -6,6 +6,7 @@ module.exports = class MyPromise {
 
     this.state = 'pending';
     this.chain = [];
+    this.failChain = [];
 
     const resolve = (value) => {
       process.nextTick(() => {
@@ -20,13 +21,14 @@ module.exports = class MyPromise {
         this.state = 'rejected';
         this.error = err;
         if (this.errorHandler) {
+
           this.value = this.errorHandler(this.error);
+          this.chain.forEach(fn => fn(this.value));
+        } else if (this.failChain.length > 0) {
+          this.failChain.forEach(fn => fn(this.error));
         } else {
           throw this.error;
         }
-
-        this.chain.forEach(fn => fn(this.value));
-
       });
     };
 
@@ -38,6 +40,7 @@ module.exports = class MyPromise {
 
     if (this.state === 'pending') {
       return new MyPromise((resolve, reject) => {
+        
         this.chain.push(x => {
           try {
             const value = fn(x);
@@ -50,6 +53,9 @@ module.exports = class MyPromise {
             reject(err);
           }
         });
+        
+        this.failChain.push(err => reject(err));
+        
       });
     }
 
@@ -58,7 +64,7 @@ module.exports = class MyPromise {
     }
 
     if (this.state === 'rejected') {
-      return new MyPromise(resolve => resolve(fn(this.value)));
+      return new MyPromise((_, reject) => reject(this.error));
     }
   }
 
