@@ -21,7 +21,6 @@ module.exports = class MyPromise {
         this.state = 'rejected';
         this.error = err;
         if (this.errorHandler) {
-
           this.value = this.errorHandler(this.error);
           this.chain.forEach(fn => fn(this.value));
         } else if (this.failChain.length > 0) {
@@ -45,7 +44,7 @@ module.exports = class MyPromise {
           try {
             const value = fn(x);
             if (value instanceof MyPromise) {
-              value.then(resolve);
+              value.then(resolve).catch(reject);
             } else {
               resolve(value);
             }
