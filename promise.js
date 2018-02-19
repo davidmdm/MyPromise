@@ -72,17 +72,17 @@ module.exports = class MyPromise {
   }
 
   static resolve(val) {
-    return new Promise(resolve => resolve(val));
+    return new MyPromise(resolve => resolve(val));
   }
 
   static reject(val) {
-    return new Promise((_, reject) => reject(val));
+    return new MyPromise((_, reject) => reject(val));
   }
 
   static all(promises) {
     let i = 0;
     const results = new Array(promises.length);
-    return new Promise((resolve, reject) => {
+    return new MyPromise((resolve, reject) => {
       promises.forEach((promise, index) => {
         promise
           .then(result => {
