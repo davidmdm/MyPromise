@@ -17,10 +17,9 @@ const fs = require('fs');
 //     .then(text => new Promise(resolve => setTimeout(() => resolve(text), 1000)))
 //     .then(console.log);
 
-Promise.resolve()
-   .then(() => Promise.reject("i am rejected"))
-   .then(() => console.log('Yolo'))
-   .then(() => console.log('bird'))
-   .catch(err => console.log(err));
+const p1 = new Promise(resolve => setTimeout(resolve, 500, 'hello'));
+const p2 = new Promise(resolve => setTimeout(resolve, 99, ' world'));
 
-
+Promise.all([p1, p2])
+    .then(results => results.join(''))
+    .then(console.log);

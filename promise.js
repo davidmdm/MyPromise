@@ -32,14 +32,13 @@ module.exports = class MyPromise {
     };
 
     fn(resolve, reject);
-
   }
 
   then(fn) {
 
     if (this.state === 'pending') {
       return new MyPromise((resolve, reject) => {
-        
+
         this.chain.push(x => {
           try {
             const value = fn(x);
@@ -52,9 +51,9 @@ module.exports = class MyPromise {
             reject(err);
           }
         });
-        
+
         this.failChain.push(err => reject(err));
-        
+
       });
     }
 
@@ -71,13 +70,31 @@ module.exports = class MyPromise {
     this.errorHandler = fn;
     return this;
   }
-  
+
   static resolve(val) {
     return new Promise(resolve => resolve(val));
   }
 
   static reject(val) {
     return new Promise((_, reject) => reject(val));
+  }
+
+  static all(promises) {
+    let i = 0;
+    const results = new Array(promises.length);
+    return new Promise((resolve, reject) => {
+      promises.forEach((promise, index) => {
+        promise
+          .then(result => {
+            results[index] = result;
+            i += 1;
+            if (i === promises.length) {
+              resolve(results);
+            }
+          })
+          .catch(reject);
+      });
+    });
   }
 
 }
